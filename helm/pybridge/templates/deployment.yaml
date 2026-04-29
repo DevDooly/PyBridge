@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-pybridge
+  labels:
+    app: pybridge
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: pybridge
+  template:
+    metadata:
+      labels:
+        app: pybridge
+    spec:
+      containers:
+        - name: pybridge
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8088
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
