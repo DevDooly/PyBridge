@@ -3,7 +3,7 @@ from fastapi import FastAPI
 import pandas as pd
 import os
 from pydantic import BaseModel
-
+import asyncio
 app = FastAPI(title="PyBridge API Server")
 
 class FilePathRequest(BaseModel):
@@ -43,6 +43,11 @@ def validate_csv(request: FilePathRequest):
 @app.get("/items/{item_id}")
 def read_item(item_id: int, q: str = None):
     return {"item_id": item_id, "query": q}
+
+@app.get("/delay")
+async def delay_test():
+    await asyncio.sleep(10)
+    return {"status": "success", "message": "Responded after 10 seconds"}
 
 if __name__ == "__main__":
     import uvicorn
