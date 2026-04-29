@@ -19,15 +19,28 @@
 - **검증**: 변경 사항을 반영하기 전에 린트 체크 및 테스트를 수행하여 안정성을 확보합니다.
 
 ## 4. 개발 및 배포 가이드
-### 4.1 개발 환경 설정
-```bash
-# 가상환경 생성 및 활성화
-python -m venv venv
-source venv/bin/activate
+### 4.1 개발 환경 설정 (Virtual Environment)
+이 프로젝트는 의존성 격리를 위해 Python 가상환경(`venv`) 사용을 권장합니다.
 
-# 의존성 설치
+```bash
+# 1. 가상환경 생성 (최초 1회)
+python3 -m venv venv
+
+# 2. 가상환경 활성화
+# Linux/macOS:
+source venv/bin/activate
+# Windows:
+# .\venv\Scripts\activate
+
+# 3. 의존성 설치
 pip install -r requirements.txt
 ```
+
+### 4.2 서버 관리 스크립트 활용
+직접 명령어를 입력하는 대신 제공된 스크립트를 사용하면 가상환경 처리가 자동으로 이루어집니다.
+- `./run.sh`: 가상환경 확인/생성 및 서버 백그라운드 실행
+- `./stop.sh`: 서버 종료
+- `./test_api.sh`: API 기능 점검
 
 ### 4.2 API 서버 실행
 - **FastAPI**: `uvicorn main:app --reload`
