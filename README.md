@@ -9,7 +9,8 @@ PyBridge/
 ├── scripts/            # 서버 관리 및 테스트 스크립트
 │   ├── run.sh          # 서버 실행 (가상환경 자동 관리 및 nohup 적용)
 │   ├── stop.sh         # 서버 종료
-│   └── test_api.sh     # API 기능 테스트
+│   ├── test_api.sh     # 기본 API 기능 테스트
+│   └── test_concurrent.sh # 동시성 테스트 (수동 실행 권장)
 ├── main.py             # 진입점 (Entry Point)
 ├── requirements.txt    # 의존성 목록
 ├── GEMINI.md           # 프로젝트 규칙 및 개발 가이드
@@ -39,6 +40,12 @@ cd PyBridge/scripts
 ```bash
 cd PyBridge/scripts
 ./test_api.sh
+```
+
+### 동시성 테스트 (선택 사항)
+```bash
+cd PyBridge/scripts
+./test_concurrent.sh
 ```
 
 ## 📝 개발 가이드
