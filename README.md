@@ -22,6 +22,11 @@ PyBridge/
 - **가상환경 자동화**: `run.sh` 실행 시 가상환경(`venv`) 생성 및 의존성 설치가 자동으로 처리됩니다.
 - **Router 기반 구조**: 확장성을 고려하여 API 엔드포인트를 기능별로 분리 관리합니다.
 
+## 📖 API 명세서
+서버 실행 후 브라우저를 통해 아래 주소에서 대화형 API 문서를 확인할 수 있습니다.
+- **Swagger UI**: [http://localhost:8088/docs](http://localhost:8088/docs)
+- **ReDoc**: [http://localhost:8088/redoc](http://localhost:8088/redoc)
+
 ## 🏁 시작하기
 
 ### 서버 실행
