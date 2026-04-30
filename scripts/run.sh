@@ -7,13 +7,20 @@ LOG_FILE="server.log"
 echo "Starting $APP_NAME on port $PORT..."
 
 # 가상환경 처리
-if [ ! -d "../venv" ]; then
-    echo "Creating virtual environment..."
-    python3 -m venv ../venv
+VENV_DIR="../venv"
+if [ ! -d "$VENV_DIR" ] || [ ! -f "$VENV_DIR/bin/activate" ]; then
+    echo "Virtual environment not found or incomplete. Attempting to create..."
+    python3 -m venv $VENV_DIR
+    
+    if [ ! -f "$VENV_DIR/bin/activate" ]; then
+        echo "Error: Failed to create virtual environment. Please check if 'python3-venv' is installed."
+        echo "Run: sudo apt install python3.10-venv (for Ubuntu/Debian)"
+        exit 1
+    fi
 fi
 
 echo "Activating virtual environment..."
-source ../venv/bin/activate
+source $VENV_DIR/bin/activate
 
 # 의존성 설치/업데이트
 echo "Installing/Updating dependencies..."
