@@ -25,7 +25,7 @@ fi
 # CSV Validation test
 echo "3. Testing CSV Validation Endpoint..."
 # 인자로 파일 경로를 받거나, 없으면 테스트용 임시 파일 생성
-TEST_FILE=${1:-"$(pwd)/test_data.csv"}
+TEST_FILE=${1:-"$(pwd)/../test_data.csv"}
 
 if [ ! -f "$TEST_FILE" ]; then
     echo "id,name,value" > "$TEST_FILE"
