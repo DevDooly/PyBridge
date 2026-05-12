@@ -1,10 +1,17 @@
 #!/bin/bash
 
-echo "Testing PyBridge API Server..."
+# .env 파일에서 PORT 읽기 (없으면 기본값 8088)
+ENV_FILE="../.env"
+if [ -f "$ENV_FILE" ]; then
+    PORT=$(grep '^PORT=' "$ENV_FILE" | cut -d '=' -f 2)
+fi
+PORT=${PORT:-8088}
+
+echo "Testing PyBridge API Server on port $PORT..."
 
 # Root endpoint test
 echo "1. Testing Root Endpoint..."
-curl -s http://localhost:8088/ | grep "Welcome to PyBridge API Server"
+curl -s http://localhost:$PORT/ | grep "Welcome to PyBridge API Server"
 if [ $? -eq 0 ]; then
     echo "   [SUCCESS] Root endpoint is working."
 else
@@ -14,7 +21,7 @@ fi
 
 # Items endpoint test
 echo "2. Testing Items Endpoint..."
-curl -s http://localhost:8088/items/123?q=test | grep '"item_id":123'
+curl -s http://localhost:$PORT/items/123?q=test | grep '"item_id":123'
 if [ $? -eq 0 ]; then
     echo "   [SUCCESS] Items endpoint is working."
 else
@@ -35,7 +42,7 @@ if [ ! -f "$TEST_FILE" ]; then
 fi
 
 # GET 요청으로 쿼리 파라미터 전달
-RESPONSE=$(curl -s -G --data-urlencode "file_path=$TEST_FILE" http://localhost:8088/validate-csv)
+RESPONSE=$(curl -s -G --data-urlencode "file_path=$TEST_FILE" http://localhost:$PORT/validate-csv)
 
 echo $RESPONSE | grep '"status":"success"'
 if [ $? -eq 0 ]; then

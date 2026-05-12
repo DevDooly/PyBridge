@@ -1,8 +1,14 @@
 #!/bin/bash
 
 APP_NAME="PyBridge API Server"
-PORT=8088
 LOG_FILE="server.log"
+
+# .env 파일에서 PORT 읽기 (없으면 기본값 8088)
+ENV_FILE="../.env"
+if [ -f "$ENV_FILE" ]; then
+    PORT=$(grep '^PORT=' "$ENV_FILE" | cut -d '=' -f 2)
+fi
+PORT=${PORT:-8088}
 
 echo "Starting $APP_NAME on port $PORT..."
 

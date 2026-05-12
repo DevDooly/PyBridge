@@ -42,11 +42,17 @@ pip install -r requirements.txt
 - `./stop.sh`: 서버 종료
 - `./test_api.sh`: API 기능 점검
 
-### 4.2 API 서버 실행
+### 4.3 환경 설정 (Configuration)
+서버 포트 등 주요 설정은 프로젝트 루트의 `.env` 파일을 통해 관리할 수 있습니다.
+1. `.env.example` 파일을 복사하여 `.env` 파일을 생성합니다.
+2. `PORT` 변수를 원하는 값으로 수정합니다 (기본값: 8088).
+3. `run.sh`, `stop.sh`, `test_api.sh` 스크립트는 자동으로 `.env` 파일의 설정을 감지하여 동작합니다.
+
+### 4.4 API 서버 직접 실행
 - **FastAPI**: `uvicorn main:app --reload`
 - **Flask**: `flask run`
 
-### 4.3 배포 방법
+### 4.5 배포 방법
 - **Docker 활용**: `docker build -t pybridge:latest .`
 - **프로세스 관리**: Gunicorn 또는 Uvicorn을 활용하여 백그라운드 실행을 권장합니다.
 - **CI/CD**: GitHub Actions를 통한 자동 배포 환경 구축을 지향합니다.

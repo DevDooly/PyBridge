@@ -2,6 +2,11 @@ import concurrent.futures
 import time
 import urllib.request
 import json
+import os
+from dotenv import load_dotenv
+
+# .env 파일 로드 (부모 디렉토리 기준)
+load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
 
 def fetch_delay(url):
     try:
@@ -12,8 +17,9 @@ def fetch_delay(url):
         return {"error": str(e)}
 
 if __name__ == "__main__":
-    urls = ["http://localhost:8088/delay" for _ in range(10)]
-    print("동시 10개 요청 시작...")
+    port = os.getenv("PORT", "8088")
+    urls = [f"http://localhost:{port}/delay" for _ in range(10)]
+    print(f"동시 10개 요청 시작 (Port: {port})...")
     
     start_time = time.time()
     
