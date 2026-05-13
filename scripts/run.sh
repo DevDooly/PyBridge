@@ -10,7 +10,15 @@ if [ -f "$ENV_FILE" ]; then
 fi
 PORT=${PORT:-8088}
 
-echo "Starting $APP_NAME on port $PORT..."
+# 실행 모드 확인 (기본값: dev)
+MODE="dev"
+for arg in "$@"; do
+    if [ "$arg" == "--prod" ]; then
+        MODE="prod"
+    fi
+done
+
+echo "Starting $APP_NAME on port $PORT ($MODE mode)..."
 
 # 가상환경 처리
 VENV_DIR="../venv"
@@ -35,8 +43,17 @@ pip install -r ../requirements.txt > /dev/null 2>&1
 # 이미 실행 중인 프로세스가 있다면 종료 (선택 사항)
 ./stop.sh > /dev/null 2>&1
 
-# nohup으로 백그라운드 실행 (가상환경의 python 사용)
-nohup python ../main.py --port $PORT > ../$LOG_FILE 2>&1 &
+# nohup으로 백그라운드 실행
+if [ "$MODE" == "prod" ]; then
+    echo "Running with Gunicorn (Production)..."
+    # main.py가 있는 루트 디렉토리로 이동하여 실행 (python path 문제 방지)
+    cd ..
+    nohup gunicorn -c gunicorn.conf.py main:app > $LOG_FILE 2>&1 &
+    cd scripts
+else
+    echo "Running with Uvicorn (Development Mode)..."
+    nohup python ../main.py --port $PORT > ../$LOG_FILE 2>&1 &
+fi
 
 echo "Server started in background. Logs are being written to $LOG_FILE"
 echo "PID: $!"

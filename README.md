@@ -32,7 +32,11 @@ PyBridge/
 ### 서버 실행
 ```bash
 cd PyBridge/scripts
+# 개발 모드 (Uvicorn)
 ./run.sh
+
+# 운영 모드 (Gunicorn + Uvicorn Workers)
+./run.sh --prod
 ```
 
 ### 서버 종료
