@@ -1,5 +1,5 @@
-fastapi
-uvicorn
-pandas
-python-dotenv
-gunicorn
+fastapi==0.128.7
+uvicorn==0.40.0
+pandas==2.3.3
+python-dotenv==1.2.1
+gunicorn==26.0.0
