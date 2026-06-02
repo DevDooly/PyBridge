@@ -41,18 +41,29 @@ install/
 
 ## 3. Ansible을 이용한 설치
 
-### 3.1 인벤토리 설정
-`install/ansible/playbook.yml`을 실행하기 전, 대상 서버 정보를 확인하세요.
+### 3.1 인벤토리 설정 (`hosts`)
+`install/ansible/hosts` 파일을 편집하여 설치 대상 서버의 IP와 접속 정보를 입력합니다.
+
+```ini
+[python_servers]
+server1 ansible_host=192.168.1.10
+server2 ansible_host=192.168.1.11
+```
 
 ### 3.2 설치 실행
-`install/` 폴더를 대상 서버로 복사한 후 아래 명령어를 실행합니다. (Ansible이 설치되어 있어야 함)
+관리 PC(또는 배포 서버)에서 아래 명령어를 실행하여 원격 서버들에 설치를 진행합니다.
 
 ```bash
 cd install/ansible
-ansible-playbook -i "localhost," -c local playbook.yml
+# 모든 대상 서버에 설치 (SSH 접속 필요)
+ansible-playbook -i hosts playbook.yml
 ```
 
+> **참고**: 특정 서버에만 설치하려면 `-l` 옵션을 사용하세요.
+> `ansible-playbook -i hosts playbook.yml -l server1`
+
 ## 4. 설치 상세 내용
+- **오프라인 배포**: 관리 PC에 준비된 `rpms`와 `src` 파일들이 각 대상 서버의 `/tmp/python_install`로 자동 복사된 후 설치됩니다.
 - **OpenSSL 1.1.1**: `/usr/local/openssl111` 경로에 설치되며, 시스템 기본 OpenSSL에는 영향을 주지 않습니다.
 - **Python 3.12**: `/usr/local/python312` 경로에 설치됩니다.
-- **바이너리 링크**: `python3.12`, `pip3.12` 명령어가 `/usr/local/bin`에 링크됩니다.
+- **바이너리 링크**: `python3.12`, `pip3.12` 명령어가 `/usr/local/bin`에 링크되어 어디서든 사용 가능합니다.
