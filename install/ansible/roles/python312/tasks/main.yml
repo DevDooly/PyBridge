@@ -36,46 +36,80 @@
     src: "{{ local_files_path }}/src/"
     dest: "{{ remote_temp_dir }}/src/"
 
-- name: OpenSSL 1.1.1 빌드 및 설치
+- name: OpenSSL 바이너리 배포 또는 빌드
   block:
-    - name: OpenSSL 압축 해제
-      unarchive:
-        src: "{{ remote_temp_dir }}/src/{{ openssl_src_file }}"
-        dest: "{{ remote_temp_dir }}"
-        remote_src: yes
+    - name: 로컬에 OpenSSL 바이너리 존재 확인
+      delegate_to: localhost
+      become: no
+      stat:
+        path: "{{ local_bin_path }}/{{ openssl_bin_archive }}"
+      register: openssl_bin_stat
 
-    - name: OpenSSL 설정 및 컴파일
-      shell: |
-        cd {{ remote_temp_dir }}/openssl-{{ openssl_version }}
-        ./config --prefix={{ openssl_install_dir }} --openssldir={{ openssl_install_dir }} shared zlib
-        make -j $(nproc)
-        make install
+    - name: OpenSSL 바이너리 배포 (로컬에 파일이 있는 경우)
+      unarchive:
+        src: "{{ local_bin_path }}/{{ openssl_bin_archive }}"
+        dest: /
+        remote_src: no
+      when: openssl_bin_stat.stat.exists
+
+    - name: OpenSSL 빌드 및 설치 (바이너리가 없는 경우)
+      block:
+        - name: OpenSSL 압축 해제
+          unarchive:
+            src: "{{ remote_temp_dir }}/src/{{ openssl_src_file }}"
+            dest: "{{ remote_temp_dir }}"
+            remote_src: yes
+
+        - name: OpenSSL 설정 및 컴파일
+          shell: |
+            cd {{ remote_temp_dir }}/openssl-{{ openssl_version }}
+            ./config --prefix={{ openssl_install_dir }} --openssldir={{ openssl_install_dir }} shared zlib
+            make -j $(nproc)
+            make install
+      when: not openssl_bin_stat.stat.exists
       args:
         creates: "{{ openssl_install_dir }}/bin/openssl"
 
-- name: Python 3.12 빌드 및 설치
+- name: Python 3.12 바이너리 배포 또는 빌드
   block:
-    - name: Python 압축 해제
+    - name: 로컬에 Python 바이너리 존재 확인
+      delegate_to: localhost
+      become: no
+      stat:
+        path: "{{ local_bin_path }}/{{ python_bin_archive }}"
+      register: python_bin_stat
+
+    - name: Python 바이너리 배포 (로컬에 파일이 있는 경우)
       unarchive:
-        src: "{{ remote_temp_dir }}/src/{{ python_src_file }}"
-        dest: "{{ remote_temp_dir }}"
-        remote_src: yes
+        src: "{{ local_bin_path }}/{{ python_bin_archive }}"
+        dest: /
+        remote_src: no
+      when: python_bin_stat.stat.exists
 
-    - name: Python 설정 (OpenSSL 1.1.1 경로 지정)
-      shell: |
-        cd {{ remote_temp_dir }}/Python-{{ python_version }}
-        ./configure --prefix={{ python_install_dir }} \
-                    --with-openssl={{ openssl_install_dir }} \
-                    --with-openssl-rpath=auto \
-                    --enable-optimizations
-      args:
-        chdir: "{{ remote_temp_dir }}/Python-{{ python_version }}"
+    - name: Python 빌드 및 설치 (바이너리가 없는 경우)
+      block:
+        - name: Python 압축 해제
+          unarchive:
+            src: "{{ remote_temp_dir }}/src/{{ python_src_file }}"
+            dest: "{{ remote_temp_dir }}"
+            remote_src: yes
 
-    - name: Python 컴파일 및 설치
-      shell: |
-        cd {{ remote_temp_dir }}/Python-{{ python_version }}
-        make -j $(nproc)
-        make altinstall
+        - name: Python 설정
+          shell: |
+            cd {{ remote_temp_dir }}/Python-{{ python_version }}
+            ./configure --prefix={{ python_install_dir }} \
+                        --with-openssl={{ openssl_install_dir }} \
+                        --with-openssl-rpath=auto \
+                        --enable-optimizations
+          args:
+            chdir: "{{ remote_temp_dir }}/Python-{{ python_version }}"
+
+        - name: Python 컴파일 및 설치
+          shell: |
+            cd {{ remote_temp_dir }}/Python-{{ python_version }}
+            make -j $(nproc)
+            make altinstall
+      when: not python_bin_stat.stat.exists
       args:
         creates: "{{ python_install_dir }}/bin/python3.12"
 
