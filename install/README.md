@@ -30,15 +30,18 @@ repotrack -p ./rpms gcc make wget libffi-devel zlib-devel bzip2-devel readline-d
 install/
 ├── README.md                   # 설치 가이드
 ├── hosts                       # 대상 서버 인벤토리
-├── playbook.yml                # Python 3.12 설치용 메인 플레이북
-├── miniconda_playbook.yml      # Miniconda 설치용 메인 플레이북
-├── roles/                      # Ansible 역할(Role) 정의
-│   ├── python312/              # Python 3.12 설치 역할
-│   └── miniconda/               # Miniconda 설치 역할
-└── files/                      # 설치에 필요한 소스 및 패키지
-    ├── binaries/               # (선택) 컴파일 완료된 바이너리 아카이브 (.tar.gz)
-    ├── rpms/                   # repotrack으로 다운로드한 .rpm 파일들
-    └── src/                    # Python, OpenSSL, Miniconda 소스/설치 파일
+├── playbook.yml                # Python 3.12 설치용
+├── miniconda_playbook.yml      # Miniconda 설치용
+├── conda_env_playbook.yml      # 가상환경 및 모듈 관리용
+├── roles/                      # Ansible 역할 정의
+│   ├── python312/
+│   ├── miniconda/
+│   └── conda_env/              # 가상환경 관리 역할
+└── files/
+    ├── requirements.txt        # 설치할 Python 모듈 목록
+    ├── binaries/
+    ├── rpms/
+    └── src/
 ```
 
 ## 3. Ansible을 이용한 설치
@@ -77,9 +80,16 @@ cd install
 ansible-playbook -i hosts miniconda_playbook.yml -u root -k
 ```
 
-> **참고**: SSH 키 기반 인증(`ssh-copy-id`)이 되어 있다면 `-k` 옵션은 생략 가능합니다.
+#### 가상환경 및 모듈 관리 (requirements.txt)
+```bash
+cd install
+ansible-playbook -i hosts conda_env_playbook.yml -u root -k
+```
+
+> **참고**: `install/files/requirements.txt`에 필요한 모듈과 버전을 적어두면, 실행 시 자동으로 해당 가상환경에 동기화됩니다.
 
 ## 4. 설치 상세 내용
+- **가상환경 관리**: `pybridge_env`라는 이름의 가상환경을 자동으로 생성하며, `pip`를 통해 `requirements.txt`에 명시된 모듈들을 설치합니다. 
 - **바이너리 배포 지원**: 한 대의 서버에서 컴파일이 완료된 후, 해당 경로를 압축하여 `install/files/binaries/` 폴더에 배치하면, 다른 서버들은 압축 해제만으로 즉시 설치됩니다.
   - **압축 방법 예시**: `tar -czvf python312_bin.tar.gz /usr/local/python3.12`
 - **패키지 충돌 방지**: 필수 빌드 도구만 선택적으로 설치하여 시스템 라이브러리와의 충돌을 방지합니다.

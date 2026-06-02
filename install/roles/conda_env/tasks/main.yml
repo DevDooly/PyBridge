@@ -1,0 +1,34 @@
+---
+- name: 임시 디렉토리 생성
+  file:
+    path: "{{ remote_temp_dir }}"
+    state: directory
+
+- name: requirements.txt 복사
+  copy:
+    src: "{{ local_requirements_path }}"
+    dest: "{{ remote_temp_dir }}/requirements.txt"
+
+- name: Conda 가상환경 존재 여부 확인
+  shell: "{{ miniconda_bin_dir }}/conda env list | grep {{ conda_env_name }}"
+  register: env_check
+  failed_when: false
+  changed_when: false
+
+- name: Conda 가상환경 생성 (없을 경우)
+  shell: "{{ miniconda_bin_dir }}/conda create -n {{ conda_env_name }} python={{ conda_python_version }} -y"
+  when: env_check.rc != 0
+
+- name: requirements.txt를 통한 모듈 설치/업데이트
+  shell: |
+    source {{ miniconda_bin_dir }}/../bin/activate {{ conda_env_name }}
+    {{ miniconda_bin_dir }}/pip install -r {{ remote_temp_dir }}/requirements.txt
+  args:
+    executable: /bin/bash
+  register: pip_install_result
+  changed_when: "'Successfully installed' in pip_install_result.stdout"
+
+- name: 임시 디렉토리 삭제
+  file:
+    path: "{{ remote_temp_dir }}"
+    state: absent

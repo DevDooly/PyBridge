@@ -1,0 +1,7 @@
+# PyBridge 가상환경 모듈 목록
+fastapi==0.111.0
+uvicorn==0.30.1
+pandas==2.2.2
+numpy==1.26.4
+requests==2.32.3
+python-dotenv==1.0.1
