@@ -26,24 +26,24 @@ repotrack -p ./rpms gcc make wget libffi-devel zlib-devel bzip2-devel readline-d
 
 준비된 파일들은 프로젝트 내에 다음과 같이 배치되어야 합니다.
 
-```
+```text
 install/
-├── ansible/
-│   ├── hosts
-│   ├── playbook.yml            # Python 3.12 설치용
-│   ├── miniconda_playbook.yml  # Miniconda 설치용
-│   └── roles/ ...
-├── files/
-│   ├── binaries/               # (선택) 컴파일된 바이너리 아카이브 배치
-│   │   ├── python312_bin.tar.gz
-│   │   └── openssl111_bin.tar.gz
-│   ├── rpms/
-│   │   └── (다운로드한 .rpm 파일들)
-│   └── src/
-│       ├── Python-3.12.x.tar.xz
-│       ├── openssl-1.1.1w.tar.gz
-│       └── Miniconda3-latest-Linux-x86_64.sh
-└── README.md
+├── README.md                   # 설치 가이드
+├── ansible/                    # Ansible 관련 설정
+│   ├── hosts                   # 대상 서버 인벤토리
+│   ├── playbook.yml            # Python 3.12 설치용 메인 플레이북
+│   ├── miniconda_playbook.yml  # Miniconda 설치용 메인 플레이북
+│   └── roles/                  # Ansible 역할(Role) 정의
+│       ├── python312/          # Python 3.12 설치 역할
+│       │   ├── tasks/main.yml  # 설치 작업 정의
+│       │   └── vars/main.yml   # 변수 정의
+│       └── miniconda/           # Miniconda 설치 역할
+│           ├── tasks/main.yml
+│           └── vars/main.yml
+└── files/                      # 설치에 필요한 소스 및 패키지
+    ├── binaries/               # (선택) 컴파일 완료된 바이너리 아카이브 (.tar.gz)
+    ├── rpms/                   # repotrack으로 다운로드한 .rpm 파일들
+    └── src/                    # Python, OpenSSL, Miniconda 소스/설치 파일
 ```
 
 ## 3. Ansible을 이용한 설치
