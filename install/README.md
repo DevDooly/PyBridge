@@ -42,7 +42,7 @@ install/
 ## 3. Ansible을 이용한 설치
 
 ### 3.1 인벤토리 설정 (`hosts`)
-`install/ansible/hosts` 파일을 편집하여 설치 대상 서버의 IP와 접속 정보를 입력합니다.
+`install/ansible/hosts` 파일을 편집하여 설치 대상 서버의 IP와 접속 정보를 입력합니다. 이 플레이북은 **`python_servers` 그룹**에 등록된 서버들만을 대상으로 동작합니다.
 
 ```ini
 [python_servers]
@@ -50,17 +50,30 @@ server1 ansible_host=192.168.1.10
 server2 ansible_host=192.168.1.11
 ```
 
-### 3.2 설치 실행
-관리 PC(또는 배포 서버)에서 아래 명령어를 실행하여 원격 서버들에 설치를 진행합니다.
+### 3.2 실행 계정 및 권한 설정
+상황에 따라 실행 계정과 sudo 권한을 다음과 같이 지정할 수 있습니다.
+
+- **방법 1: `hosts` 파일에 설정 (영구적)**
+  `ansible_user`와 `ansible_ssh_pass` 등을 설정합니다.
+- **방법 2: 명령줄 옵션 사용 (유연함)**
+  - `-u [USER]`: 접속할 사용자 계정 지정 (예: `-u myuser`)
+  - `-k`: 접속 사용자의 비밀번호 입력 프롬프트 활성화
+  - `-K` (대문자): sudo(become) 권한 획득을 위한 비밀번호 입력 프롬프트 활성화
+
+### 3.3 설치 실행
+관리 PC(또는 배포 서버)에서 아래 명령어를 실행합니다.
 
 ```bash
 cd install/ansible
-# 모든 대상 서버에 설치 (SSH 접속 필요)
-ansible-playbook -i hosts playbook.yml
+
+# 1. root 계정으로 직접 접속하여 설치할 경우
+ansible-playbook -i hosts playbook.yml -u root -k
+
+# 2. sudo 권한이 있는 일반 계정으로 접속하여 설치할 경우 (-K 옵션으로 sudo 비번 입력)
+ansible-playbook -i hosts playbook.yml -u myuser -k -K
 ```
 
-> **참고**: 특정 서버에만 설치하려면 `-l` 옵션을 사용하세요.
-> `ansible-playbook -i hosts playbook.yml -l server1`
+> **참고**: SSH 키 기반 인증(`ssh-copy-id`)이 되어 있다면 `-k` 옵션은 생략 가능합니다.
 
 ## 4. 설치 상세 내용
 - **오프라인 배포**: 관리 PC에 준비된 `rpms`와 `src` 파일들이 각 대상 서버의 `/tmp/python_install`로 자동 복사된 후 설치됩니다.

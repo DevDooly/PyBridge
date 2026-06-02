@@ -1,6 +1,6 @@
 ---
 - name: "Python 3.12 오프라인 설치"
-  hosts: all
+  hosts: python_servers
   become: yes
   roles:
     - python312
