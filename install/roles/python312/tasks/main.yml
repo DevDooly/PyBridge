@@ -118,9 +118,19 @@
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
     state: link
+    force: yes
   loop:
     - { src: "{{ python_install_dir }}/bin/python3.12", dest: "/usr/local/bin/python3.12" }
+    - { src: "{{ python_install_dir }}/bin/python3.12", dest: "/usr/local/bin/python3" }
     - { src: "{{ python_install_dir }}/bin/pip3.12", dest: "/usr/local/bin/pip3.12" }
+    - { src: "{{ python_install_dir }}/bin/pip3.12", dest: "/usr/local/bin/pip3" }
+
+- name: 시스템 환경 변수 설정 (Profile.d)
+  copy:
+    dest: /etc/profile.d/python312.sh
+    content: |
+      export PATH="{{ python_install_dir }}/bin:$PATH"
+    mode: '0644'
 
 - name: 임시 디렉토리 삭제
   file:

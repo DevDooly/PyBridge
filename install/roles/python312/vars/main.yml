@@ -3,7 +3,7 @@ python_version: "3.12.0"
 openssl_version: "1.1.1w"
 
 # 설치 경로 설정
-python_install_dir: "/usr/local/python312"
+python_install_dir: "/usr/local/python3.12"
 openssl_install_dir: "/usr/local/openssl111"
 
 # 소스 파일 이름
