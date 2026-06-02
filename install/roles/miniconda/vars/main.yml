@@ -1,7 +1,11 @@
 ---
 miniconda_version: "latest"
 miniconda_installer: "Miniconda3-latest-Linux-x86_64.sh"
-miniconda_install_dir: "/usr/local/miniconda"
+miniconda_install_dir: "/usr/local/miniconda3"
+
+# Miniconda 설치에 필요한 최소 의존성 패키지 (bzip2 등)
+miniconda_dependencies:
+  - bzip2
 
 # 로컬 파일 경로
 local_files_path: "files"

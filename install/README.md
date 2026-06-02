@@ -86,5 +86,5 @@ ansible-playbook -i hosts miniconda_playbook.yml -u root -k
 - **오프라인 배포**: 관리 PC에 준비된 파일들이 각 대상 서버의 임시 경로(`/tmp/...`)로 자동 복사된 후 설치됩니다.
 - **OpenSSL 1.1.1**: `/usr/local/openssl111` 경로에 설치되며, 시스템 기본 OpenSSL에는 영향을 주지 않습니다.
 - **Python 3.12**: `/usr/local/python3.12` 경로에 설치되며, `/etc/profile.d/python312.sh`를 통해 전역 환경 변수가 설정됩니다.
-- **Miniconda**: `/usr/local/miniconda` 경로에 설치되며, `/etc/profile.d/miniconda.sh`를 통해 전역 환경 변수가 설정됩니다.
+- **Miniconda**: `/usr/local/miniconda3` 경로에 설치되며, `/etc/profile.d/miniconda.sh`를 통해 전역 환경 변수가 설정됩니다.
 - **바이너리 링크**: `python3`, `python3.12`, `pip3`, `pip3.12` 명령어가 `/usr/local/bin`에 링크되어 어디서든 사용 가능합니다.
