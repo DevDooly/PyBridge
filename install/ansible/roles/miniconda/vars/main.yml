@@ -1,0 +1,8 @@
+---
+miniconda_version: "latest"
+miniconda_installer: "Miniconda3-latest-Linux-x86_64.sh"
+miniconda_install_dir: "/usr/local/miniconda"
+
+# 로컬 파일 경로
+local_files_path: "../files"
+remote_temp_dir: "/tmp/miniconda_install"

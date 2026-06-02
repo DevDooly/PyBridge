@@ -1,0 +1,34 @@
+---
+- name: 임시 작업 디렉토리 생성
+  file:
+    path: "{{ remote_temp_dir }}"
+    state: directory
+    mode: '0755'
+
+- name: Miniconda 설치 관리자 복사
+  copy:
+    src: "{{ local_files_path }}/src/{{ miniconda_installer }}"
+    dest: "{{ remote_temp_dir }}/{{ miniconda_installer }}"
+    mode: '0755'
+
+- name: Miniconda 무인 설치 실행
+  shell: "{{ remote_temp_dir }}/{{ miniconda_installer }} -b -u -p {{ miniconda_install_dir }}"
+  args:
+    creates: "{{ miniconda_install_dir }}/bin/conda"
+
+- name: 시스템 환경 변수 설정 (Profile.d)
+  copy:
+    dest: /etc/profile.d/miniconda.sh
+    content: |
+      export PATH="{{ miniconda_install_dir }}/bin:$PATH"
+    mode: '0644'
+
+- name: Conda 초기화 (Bash)
+  shell: "{{ miniconda_install_dir }}/bin/conda init bash"
+  args:
+    executable: /bin/bash
+
+- name: 임시 디렉토리 삭제
+  file:
+    path: "{{ remote_temp_dir }}"
+    state: absent

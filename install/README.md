@@ -1,15 +1,16 @@
-# CentOS 7 Python 3.12 오프라인 설치 가이드
+# CentOS 7 Python 3.12 & Miniconda 오프라인 설치 가이드
 
-이 문서는 인터넷이 연결되지 않은 CentOS 7 환경에서 Python 3.12와 OpenSSL 1.1.1을 설치하기 위한 준비 및 실행 방법을 설명합니다.
+이 문서는 인터넷이 연결되지 않은 CentOS 7 환경에서 Python 3.12, OpenSSL 1.1.1 및 Miniconda를 설치하기 위한 준비 및 실행 방법을 설명합니다.
 
 ## 1. 사전 준비 (인터넷이 연결된 환경)
 
 인터넷이 연결된 동일한 버전의 CentOS 7 머신에서 아래 파일들을 다운로드하여 `install/files/` 디렉토리에 배치해야 합니다.
 
-### 1.1 소스 코드 다운로드
+### 1.1 소스 코드 및 설치 파일 다운로드
 아래 파일들을 `install/files/src/` 폴더에 다운로드합니다.
 - **Python 3.12.x**: [https://www.python.org/ftp/python/3.12.x/Python-3.12.x.tar.xz](https://www.python.org/ftp/python/3.12.x/Python-3.12.0.tar.xz)
 - **OpenSSL 1.1.1w**: [https://www.openssl.org/source/openssl-1.1.1w.tar.gz](https://www.openssl.org/source/openssl-1.1.1w.tar.gz)
+- **Miniconda3**: [https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh](https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh)
 
 ### 1.2 RPM 의존성 패키지 다운로드
 CentOS 7 기본 레포지토리에서 빌드에 필요한 패키지들을 `install/files/rpms/` 폴더에 다운로드합니다.
@@ -28,14 +29,17 @@ repotrack -p ./rpms gcc make wget libffi-devel zlib-devel bzip2-devel readline-d
 ```
 install/
 ├── ansible/
-│   ├── playbook.yml
-│   └── roles/python312/ ...
+│   ├── hosts
+│   ├── playbook.yml            # Python 3.12 설치용
+│   ├── miniconda_playbook.yml  # Miniconda 설치용
+│   └── roles/ ...
 ├── files/
 │   ├── rpms/
 │   │   └── (다운로드한 .rpm 파일들)
 │   └── src/
 │       ├── Python-3.12.x.tar.xz
-│       └── openssl-1.1.1w.tar.gz
+│       ├── openssl-1.1.1w.tar.gz
+│       └── Miniconda3-latest-Linux-x86_64.sh
 └── README.md
 ```
 
@@ -63,20 +67,23 @@ server2 ansible_host=192.168.1.11
 ### 3.3 설치 실행
 관리 PC(또는 배포 서버)에서 아래 명령어를 실행합니다.
 
+#### Python 3.12 설치
 ```bash
 cd install/ansible
-
-# 1. root 계정으로 직접 접속하여 설치할 경우
 ansible-playbook -i hosts playbook.yml -u root -k
+```
 
-# 2. sudo 권한이 있는 일반 계정으로 접속하여 설치할 경우 (-K 옵션으로 sudo 비번 입력)
-ansible-playbook -i hosts playbook.yml -u myuser -k -K
+#### Miniconda 설치
+```bash
+cd install/ansible
+ansible-playbook -i hosts miniconda_playbook.yml -u root -k
 ```
 
 > **참고**: SSH 키 기반 인증(`ssh-copy-id`)이 되어 있다면 `-k` 옵션은 생략 가능합니다.
 
 ## 4. 설치 상세 내용
-- **오프라인 배포**: 관리 PC에 준비된 `rpms`와 `src` 파일들이 각 대상 서버의 `/tmp/python_install`로 자동 복사된 후 설치됩니다.
+- **오프라인 배포**: 관리 PC에 준비된 파일들이 각 대상 서버의 임시 경로(`/tmp/...`)로 자동 복사된 후 설치됩니다.
 - **OpenSSL 1.1.1**: `/usr/local/openssl111` 경로에 설치되며, 시스템 기본 OpenSSL에는 영향을 주지 않습니다.
 - **Python 3.12**: `/usr/local/python312` 경로에 설치됩니다.
+- **Miniconda**: `/usr/local/miniconda` 경로에 설치되며, `/etc/profile.d/miniconda.sh`를 통해 전역 환경 변수가 설정됩니다.
 - **바이너리 링크**: `python3.12`, `pip3.12` 명령어가 `/usr/local/bin`에 링크되어 어디서든 사용 가능합니다.

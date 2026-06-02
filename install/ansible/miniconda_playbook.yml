@@ -1,0 +1,6 @@
+---
+- name: "Miniconda 오프라인 설치"
+  hosts: python_servers
+  become: yes
+  roles:
+    - miniconda
