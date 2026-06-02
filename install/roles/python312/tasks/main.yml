@@ -66,9 +66,9 @@
             ./config --prefix={{ openssl_install_dir }} --openssldir={{ openssl_install_dir }} shared zlib
             make -j $(nproc)
             make install
+          args:
+            creates: "{{ openssl_install_dir }}/bin/openssl"
       when: not openssl_bin_stat.stat.exists
-      args:
-        creates: "{{ openssl_install_dir }}/bin/openssl"
 
 - name: Python 3.12 바이너리 배포 또는 빌드
   block:
@@ -109,9 +109,9 @@
             cd {{ remote_temp_dir }}/Python-{{ python_version }}
             make -j $(nproc)
             make altinstall
+          args:
+            creates: "{{ python_install_dir }}/bin/python3.12"
       when: not python_bin_stat.stat.exists
-      args:
-        creates: "{{ python_install_dir }}/bin/python3.12"
 
 - name: 심볼릭 링크 생성
   file:
