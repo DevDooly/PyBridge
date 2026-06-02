@@ -82,6 +82,7 @@ ansible-playbook -i hosts miniconda_playbook.yml -u root -k
 > **참고**: SSH 키 기반 인증(`ssh-copy-id`)이 되어 있다면 `-k` 옵션은 생략 가능합니다.
 
 ## 4. 설치 상세 내용
+- **패키지 충돌 방지**: `repotrack`으로 받은 모든 패키지를 강제 설치(`*.rpm`)하지 않고, 필수 빌드 도구(`gcc`, `make` 등)만 선택적으로 설치합니다. 이를 통해 시스템 핵심 라이브러리(`krb5-libs` 등)와의 버전 충돌을 방지합니다.
 - **오프라인 배포**: 관리 PC에 준비된 파일들이 각 대상 서버의 임시 경로(`/tmp/...`)로 자동 복사된 후 설치됩니다.
 - **OpenSSL 1.1.1**: `/usr/local/openssl111` 경로에 설치되며, 시스템 기본 OpenSSL에는 영향을 주지 않습니다.
 - **Python 3.12**: `/usr/local/python312` 경로에 설치됩니다.

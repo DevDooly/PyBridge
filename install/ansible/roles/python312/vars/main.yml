@@ -10,6 +10,19 @@ openssl_install_dir: "/usr/local/openssl111"
 python_src_file: "Python-{{ python_version }}.tar.xz"
 openssl_src_file: "openssl-{{ openssl_version }}.tar.gz"
 
+# 빌드 필수 패키지 목록 (yum 모듈에서 사용)
+build_dependencies:
+  - gcc
+  - make
+  - libffi-devel
+  - zlib-devel
+  - bzip2-devel
+  - readline-devel
+  - sqlite-devel
+  - xz-devel
+  - openssl-devel
+  - wget
+
 # 로컬 파일 경로 (Ansible 실행 위치 기준)
 local_files_path: "../files"
 remote_temp_dir: "/tmp/python_install"

@@ -10,10 +10,13 @@
     src: "{{ local_files_path }}/rpms/"
     dest: "{{ remote_temp_dir }}/rpms/"
 
-- name: RPM 의존성 패키지 설치
-  shell: "yum localinstall -y {{ remote_temp_dir }}/rpms/*.rpm"
+- name: RPM 의존성 패키지 설치 (선택적 설치로 충돌 방지)
+  yum:
+    name: "{{ remote_temp_dir }}/rpms/{{ item }}*.rpm"
+    state: present
+    disable_gpg_check: yes
+  loop: "{{ build_dependencies }}"
   register: yum_result
-  changed_when: "'Nothing to do' not in yum_result.stdout"
 
 - name: 소스 코드 복사
   copy:
