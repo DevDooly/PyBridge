@@ -23,6 +23,12 @@ build_dependencies:
   - openssl-devel
   - wget
 
+# 충돌을 방지하기 위해 설치에서 제외할 패키지 패턴 (시스템 핵심 라이브러리)
+exclude_patterns:
+  - "krb5-libs"
+  - "libkadm5"
+  - "glibc"
+
 # 로컬 파일 경로 (Ansible 실행 위치 기준)
 local_files_path: "../files"
 remote_temp_dir: "/tmp/python_install"

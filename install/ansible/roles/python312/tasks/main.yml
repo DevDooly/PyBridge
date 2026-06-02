@@ -10,12 +10,25 @@
     src: "{{ local_files_path }}/rpms/"
     dest: "{{ remote_temp_dir }}/rpms/"
 
-- name: RPM 의존성 패키지 설치 (선택적 설치로 충돌 방지)
+- name: RPM 파일 목록 추출
+  find:
+    paths: "{{ remote_temp_dir }}/rpms"
+    patterns: "*.rpm"
+  register: found_rpm_files
+
+- name: RPM 의존성 패키지 설치 (충돌 패키지 제외 및 정확한 경로 지정)
   yum:
-    name: "{{ remote_temp_dir }}/rpms/{{ item }}*.rpm"
+    name: "{{ item }}"
     state: present
     disable_gpg_check: yes
-  loop: "{{ build_dependencies }}"
+  loop: >-
+    {{
+      found_rpm_files.files 
+      | map(attribute='path') 
+      | select('search', build_dependencies | join('|'))
+      | reject('search', exclude_patterns | join('|'))
+      | list
+    }}
   register: yum_result
 
 - name: 소스 코드 복사
