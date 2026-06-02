@@ -5,4 +5,5 @@ miniconda_bin_dir: "/usr/local/miniconda3/bin"
 
 # 로컬 파일 경로
 local_requirements_path: "files/requirements.txt"
+local_packages_path: "files/packages"
 remote_temp_dir: "/tmp/conda_env_setup"

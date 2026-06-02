@@ -8,18 +8,26 @@
 
 ### 1.1 소스 코드 및 설치 파일 다운로드
 아래 파일들을 `install/files/src/` 폴더에 다운로드합니다.
-- **Python 3.12.x**: [https://www.python.org/ftp/python/3.12.x/Python-3.12.x.tar.xz](https://www.python.org/ftp/python/3.12.x/Python-3.12.0.tar.xz)
-- **OpenSSL 1.1.1w**: [https://www.openssl.org/source/openssl-1.1.1w.tar.gz](https://www.openssl.org/source/openssl-1.1.1w.tar.gz)
-- **Miniconda3**: [https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh](https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh)
+- **Python 3.12.x**: [Python-3.12.x.tar.xz](https://www.python.org/ftp/python/3.12.x/Python-3.12.0.tar.xz)
+- **OpenSSL 1.1.1w**: [openssl-1.1.1w.tar.gz](https://www.openssl.org/source/openssl-1.1.1w.tar.gz)
+- **Miniconda3**: [Miniconda3-latest-Linux-x86_64.sh](https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh)
 
 ### 1.2 RPM 의존성 패키지 다운로드
 CentOS 7 기본 레포지토리에서 빌드에 필요한 패키지들을 `install/files/rpms/` 폴더에 다운로드합니다.
 
 ```bash
-# 의존성 패키지 목록 다운로드
 mkdir -p rpms
 yum install -y yum-utils
 repotrack -p ./rpms gcc make wget libffi-devel zlib-devel bzip2-devel readline-devel sqlite-devel tk-devel gdbm-devel db4-devel libpcap-devel xz-devel
+```
+
+### 1.3 Python 모듈(WHL) 다운로드
+가상환경에서 사용할 모듈들을 `install/files/packages/` 폴더에 다운로드합니다. (의존성 포함)
+
+```bash
+mkdir -p packages
+# requirements.txt에 명시된 모든 패키지를 WHL 파일로 다운로드
+pip download -d ./packages -r requirements.txt
 ```
 
 ## 2. 파일 배치 구조
@@ -39,34 +47,18 @@ install/
 │   └── conda_env/              # 가상환경 관리 역할
 └── files/
     ├── requirements.txt        # 설치할 Python 모듈 목록
-    ├── binaries/
-    ├── rpms/
-    └── src/
+    ├── packages/               # 다운로드한 .whl 파일들
+    ├── binaries/               # (선택) 컴파일 완료된 바이너리 아카이브
+    ├── rpms/                   # 의존성 .rpm 파일들
+    └── src/                    # Python, OpenSSL, Miniconda 소스
 ```
 
 ## 3. Ansible을 이용한 설치
 
 ### 3.1 인벤토리 설정 (`hosts`)
-`install/hosts` 파일을 편집하여 설치 대상 서버의 IP와 접속 정보를 입력합니다. 이 플레이북은 **`python_servers` 그룹**에 등록된 서버들만을 대상으로 동작합니다.
+`install/hosts` 파일을 편집하여 설치 대상 서버의 IP와 접속 정보를 입력합니다.
 
-```ini
-[python_servers]
-server1 ansible_host=192.168.1.10
-server2 ansible_host=192.168.1.11
-```
-
-### 3.2 실행 계정 및 권한 설정
-상황에 따라 실행 계정과 sudo 권한을 다음과 같이 지정할 수 있습니다.
-
-- **방법 1: `hosts` 파일에 설정 (영구적)**
-  `ansible_user`와 `ansible_ssh_pass` 등을 설정합니다.
-- **방법 2: 명령줄 옵션 사용 (유연함)**
-  - `-u [USER]`: 접속할 사용자 계정 지정 (예: `-u myuser`)
-  - `-k`: 접속 사용자의 비밀번호 입력 프롬프트 활성화
-  - `-K` (대문자): sudo(become) 권한 획득을 위한 비밀번호 입력 프롬프트 활성화
-
-### 3.3 설치 실행
-관리 PC(또는 배포 서버)에서 아래 명령어를 실행합니다.
+### 3.2 설치 실행
 
 #### Python 3.12 설치
 ```bash
@@ -86,15 +78,10 @@ cd install
 ansible-playbook -i hosts conda_env_playbook.yml -u root -k
 ```
 
-> **참고**: `install/files/requirements.txt`에 필요한 모듈과 버전을 적어두면, 실행 시 자동으로 해당 가상환경에 동기화됩니다.
-
 ## 4. 설치 상세 내용
-- **가상환경 관리**: `pybridge_env`라는 이름의 가상환경을 자동으로 생성하며, `pip`를 통해 `requirements.txt`에 명시된 모듈들을 설치합니다. 
+- **오프라인 모듈 설치**: 인터넷이 연결된 환경에서 `pip download`로 받은 `.whl` 파일들을 사용하여 설치합니다. `pip install --no-index --find-links` 옵션을 통해 외부망 접속 없이 로컬 파일만으로 가상환경을 구성합니다.
+- **가상환경 관리**: `pybridge_env`라는 이름의 가상환경을 자동으로 생성하며, `requirements.txt`에 명시된 모듈들을 설치/업데이트합니다.
 - **바이너리 배포 지원**: 한 대의 서버에서 컴파일이 완료된 후, 해당 경로를 압축하여 `install/files/binaries/` 폴더에 배치하면, 다른 서버들은 압축 해제만으로 즉시 설치됩니다.
-  - **압축 방법 예시**: `tar -czvf python312_bin.tar.gz /usr/local/python3.12`
-- **패키지 충돌 방지**: 필수 빌드 도구만 선택적으로 설치하여 시스템 라이브러리와의 충돌을 방지합니다.
-- **오프라인 배포**: 관리 PC에 준비된 파일들이 각 대상 서버의 임시 경로(`/tmp/...`)로 자동 복사된 후 설치됩니다.
-- **OpenSSL 1.1.1**: `/usr/local/openssl111` 경로에 설치되며, 시스템 기본 OpenSSL에는 영향을 주지 않습니다.
-- **Python 3.12**: `/usr/local/python3.12` 경로에 설치되며, `/etc/profile.d/python312.sh`를 통해 전역 환경 변수가 설정됩니다.
-- **Miniconda**: `/usr/local/miniconda3` 경로에 설치되며, `/etc/profile.d/miniconda.sh`를 통해 전역 환경 변수가 설정됩니다.
-- **바이너리 링크**: `python3`, `python3.12`, `pip3`, `pip3.12` 명령어가 `/usr/local/bin`에 링크되어 어디서든 사용 가능합니다.
+- **OpenSSL 1.1.1**: `/usr/local/openssl111` 경로에 설치됩니다.
+- **Python 3.12**: `/usr/local/python3.12` 경로에 설치됩니다.
+- **Miniconda**: `/usr/local/miniconda3` 경로에 설치됩니다.
