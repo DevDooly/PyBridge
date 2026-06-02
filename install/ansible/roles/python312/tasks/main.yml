@@ -1,0 +1,78 @@
+---
+- name: 임시 작업 디렉토리 생성
+  file:
+    path: "{{ remote_temp_dir }}"
+    state: directory
+    mode: '0755'
+
+- name: RPM 의존성 패키지 복사
+  copy:
+    src: "{{ local_files_path }}/rpms/"
+    dest: "{{ remote_temp_dir }}/rpms/"
+
+- name: RPM 의존성 패키지 설치
+  shell: "yum localinstall -y {{ remote_temp_dir }}/rpms/*.rpm"
+  register: yum_result
+  changed_when: "'Nothing to do' not in yum_result.stdout"
+
+- name: 소스 코드 복사
+  copy:
+    src: "{{ local_files_path }}/src/"
+    dest: "{{ remote_temp_dir }}/src/"
+
+- name: OpenSSL 1.1.1 빌드 및 설치
+  block:
+    - name: OpenSSL 압축 해제
+      unarchive:
+        src: "{{ remote_temp_dir }}/src/{{ openssl_src_file }}"
+        dest: "{{ remote_temp_dir }}"
+        remote_src: yes
+
+    - name: OpenSSL 설정 및 컴파일
+      shell: |
+        cd {{ remote_temp_dir }}/openssl-{{ openssl_version }}
+        ./config --prefix={{ openssl_install_dir }} --openssldir={{ openssl_install_dir }} shared zlib
+        make -j $(nproc)
+        make install
+      args:
+        creates: "{{ openssl_install_dir }}/bin/openssl"
+
+- name: Python 3.12 빌드 및 설치
+  block:
+    - name: Python 압축 해제
+      unarchive:
+        src: "{{ remote_temp_dir }}/src/{{ python_src_file }}"
+        dest: "{{ remote_temp_dir }}"
+        remote_src: yes
+
+    - name: Python 설정 (OpenSSL 1.1.1 경로 지정)
+      shell: |
+        cd {{ remote_temp_dir }}/Python-{{ python_version }}
+        ./configure --prefix={{ python_install_dir }} \
+                    --with-openssl={{ openssl_install_dir }} \
+                    --with-openssl-rpath=auto \
+                    --enable-optimizations
+      args:
+        chdir: "{{ remote_temp_dir }}/Python-{{ python_version }}"
+
+    - name: Python 컴파일 및 설치
+      shell: |
+        cd {{ remote_temp_dir }}/Python-{{ python_version }}
+        make -j $(nproc)
+        make altinstall
+      args:
+        creates: "{{ python_install_dir }}/bin/python3.12"
+
+- name: 심볼릭 링크 생성
+  file:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    state: link
+  loop:
+    - { src: "{{ python_install_dir }}/bin/python3.12", dest: "/usr/local/bin/python3.12" }
+    - { src: "{{ python_install_dir }}/bin/pip3.12", dest: "/usr/local/bin/pip3.12" }
+
+- name: 임시 디렉토리 삭제
+  file:
+    path: "{{ remote_temp_dir }}"
+    state: absent
