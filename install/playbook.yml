@@ -1,5 +1,5 @@
 ---
-- name: "Python 3.12 오프라인 설치"
+- name: "Python 3.12.13 오프라인 설치"
   hosts: python_servers
   become: yes
   roles:

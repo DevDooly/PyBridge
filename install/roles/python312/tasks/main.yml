@@ -70,7 +70,7 @@
             creates: "{{ openssl_install_dir }}/bin/openssl"
       when: not openssl_bin_stat.stat.exists
 
-- name: Python 3.12 바이너리 배포 또는 빌드
+- name: Python 3.12.13 바이너리 배포 또는 빌드
   block:
     - name: 로컬에 Python 바이너리 존재 확인
       delegate_to: localhost

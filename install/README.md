@@ -1,13 +1,13 @@
-# CentOS 7 Python 3.12 오프라인 설치 가이드
+# CentOS 7 Python 3.12.13 오프라인 설치 가이드
 
-이 문서는 인터넷이 연결되지 않은 CentOS 7 환경에서 Python 3.12 설치 및 프로젝트용 `venv` 가상환경을 구축하기 위한 가이드를 제공합니다.
+이 문서는 인터넷이 연결되지 않은 CentOS 7 환경에서 Python 3.12.13 설치 및 프로젝트용 `venv` 가상환경을 구축하기 위한 가이드를 제공합니다.
 
-> **참고**: CentOS 7은 최신 Miniconda 지원이 중단되었으므로, Python 3.12의 표준 `venv` 모듈을 사용합니다.
+> **참고**: CentOS 7은 최신 Miniconda 지원이 중단되었으므로, Python 3.12.13의 표준 `venv` 모듈을 사용합니다.
 
 ## 1. 사전 준비 (인터넷이 연결된 환경)
 
 ### 1.1 소스 코드 및 패키지 다운로드
-- **Python 3.12.x**: [Python-3.12.x.tar.xz](https://www.python.org/ftp/python/3.12.x/Python-3.12.0.tar.xz)
+- **Python 3.12.13**: [Python-3.12.13.tar.xz](https://www.python.org/ftp/python/3.12.13/Python-3.12.13.tar.xz)
 - **OpenSSL 1.1.1w**: [openssl-1.1.1w.tar.gz](https://www.openssl.org/source/openssl-1.1.1w.tar.gz)
 
 ### 1.2 RPM 의존성 패키지 다운로드
@@ -34,7 +34,7 @@ pip download -d ./packages -r requirements.txt
 install/
 ├── README.md                   # 설치 가이드
 ├── hosts                       # 대상 서버 인벤토리
-├── playbook.yml                # Python 3.12 설치용
+├── playbook.yml                # Python 3.12.13 설치용
 ├── venv_playbook.yml           # venv 가상환경 및 모듈 관리용
 ├── roles/
 │   ├── python312/              # Python 설치 Role
@@ -48,7 +48,7 @@ install/
 
 ## 3. Ansible을 이용한 설치
 
-### 3.1 Python 3.12 설치
+### 3.1 Python 3.12.13 설치
 ```bash
 cd install
 ansible-playbook -i hosts playbook.yml -u root -k
