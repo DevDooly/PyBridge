@@ -1,0 +1,6 @@
+---
+- name: "Python venv 가상환경 및 모듈 설정"
+  hosts: python_servers
+  become: yes
+  roles:
+    - python_venv

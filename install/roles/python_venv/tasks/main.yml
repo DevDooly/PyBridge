@@ -1,0 +1,45 @@
+---
+- name: 프로젝트 디렉토리 생성
+  file:
+    path: "{{ project_root }}"
+    state: directory
+    mode: '0755'
+
+- name: 임시 작업 디렉토리 생성
+  file:
+    path: "{{ item }}"
+    state: directory
+  loop:
+    - "{{ remote_temp_dir }}"
+    - "{{ remote_temp_dir }}/packages"
+
+- name: requirements.txt 복사
+  copy:
+    src: "{{ local_requirements_path }}"
+    dest: "{{ remote_temp_dir }}/requirements.txt"
+
+- name: WHL 패키지 파일들 복사
+  copy:
+    src: "{{ local_packages_path }}/"
+    dest: "{{ remote_temp_dir }}/packages/"
+
+- name: venv 가상환경 생성
+  command: "{{ python_bin }} -m venv {{ venv_path }}"
+  args:
+    creates: "{{ venv_path }}/bin/activate"
+
+- name: venv 내부의 pip/setuptools 업데이트 (오프라인)
+  shell: |
+    {{ venv_path }}/bin/pip install --no-index --find-links={{ remote_temp_dir }}/packages pip setuptools wheel --upgrade
+  failed_when: false
+
+- name: 오프라인 모듈 설치 (requirements.txt 활용)
+  shell: |
+    {{ venv_path }}/bin/pip install --no-index --find-links={{ remote_temp_dir }}/packages -r {{ remote_temp_dir }}/requirements.txt
+  register: pip_install_result
+  changed_when: "'Successfully installed' in pip_install_result.stdout"
+
+- name: 임시 디렉토리 삭제
+  file:
+    path: "{{ remote_temp_dir }}"
+    state: absent

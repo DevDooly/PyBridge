@@ -1,0 +1,12 @@
+---
+# 프로젝트 및 venv 경로 설정
+project_root: "/home/rudy/app/listener"
+venv_path: "{{ project_root }}/.venv"
+
+# 이전에 설치한 Python 3.12 바이너리 경로
+python_bin: "/usr/local/python3.12/bin/python3"
+
+# 로컬 파일 경로
+local_requirements_path: "files/requirements.txt"
+local_packages_path: "files/packages"
+remote_temp_dir: "/tmp/venv_setup"
