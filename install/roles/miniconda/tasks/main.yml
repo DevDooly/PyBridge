@@ -1,16 +1,31 @@
 ---
 - name: 임시 작업 디렉토리 생성
   file:
-    path: "{{ remote_temp_dir }}/rpms"
+    path: "{{ item }}"
     state: directory
     mode: '0755'
+  loop:
+    - "{{ remote_temp_dir }}"
+    - "{{ remote_temp_dir }}/rpms"
 
-- name: RPM 의존성 패키지 복사 (설치 도구용)
+- name: 로컬에서 필요한 RPM 파일 검색 (Miniconda용)
+  delegate_to: localhost
+  become: no
+  find:
+    paths: "{{ local_files_path }}/rpms"
+    patterns: "{{ item }}*.rpm"
+  loop: "{{ miniconda_dependencies }}"
+  register: local_rpm_files
+
+- name: 필요한 RPM 패키지만 선별 복사
   copy:
-    src: "{{ local_files_path }}/rpms/"
+    src: "{{ item.1.path }}"
     dest: "{{ remote_temp_dir }}/rpms/"
+  with_subelements:
+    - "{{ local_rpm_files.results }}"
+    - files
 
-- name: RPM 파일 목록 추출
+- name: RPM 파일 목록 추출 (원격 서버)
   find:
     paths: "{{ remote_temp_dir }}/rpms"
     patterns: "*.rpm"
@@ -18,16 +33,10 @@
 
 - name: 필수 패키지 설치 (bzip2 등)
   yum:
-    name: "{{ item }}"
+    name: "{{ item.path }}"
     state: present
     disable_gpg_check: yes
-  loop: >-
-    {{
-      found_rpm_files.files 
-      | map(attribute='path') 
-      | select('search', miniconda_dependencies | join('|'))
-      | list
-    }}
+  loop: "{{ found_rpm_files.files }}"
 
 - name: Miniconda 설치 관리자 복사
   copy:
