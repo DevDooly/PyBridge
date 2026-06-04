@@ -18,10 +18,15 @@ repotrack -p ./rpms gcc make libffi-devel zlib-devel bzip2-devel readline-devel 
 ```
 
 ### 1.3 Python 모듈(WHL) 다운로드
-`install/files/packages/` 폴더에 다운로드합니다.
+가상환경에서 사용할 모듈들을 `install/files/packages/` 폴더에 다운로드합니다. 오프라인 설치의 안정성을 위해 **의존성이 모두 포함된 목록**을 준비하는 것이 좋습니다.
+
 ```bash
 mkdir -p packages
+# 1. 인터넷 환경에서 필요한 패키지들의 의존성을 모두 포함하여 다운로드
 pip download -d ./packages -r requirements.txt
+
+# 2. (권장) 의존성이 모두 포함된 'frozen' 목록 생성 (오프라인 서버와 동일한 버전 보장)
+# 이미 설치된 환경이 있다면: pip freeze > requirements.txt
 ```
 
 ## 2. 파일 배치 구조

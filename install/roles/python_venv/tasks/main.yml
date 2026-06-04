@@ -18,10 +18,27 @@
     src: "{{ local_requirements_path }}"
     dest: "{{ remote_temp_dir }}/requirements.txt"
 
-- name: WHL 패키지 파일들 복사
+- name: requirements.txt 패키지 목록 읽기
+  set_fact:
+    package_names: "{{ lookup('file', local_requirements_path).splitlines() | map('regex_replace', '==.*', '') | select('match', '^[a-zA-Z0-9]') | list }}"
+
+- name: 로컬에서 필요한 WHL 파일 검색 (requirements 기반)
+  delegate_to: localhost
+  become: no
+  find:
+    paths: "{{ local_packages_path }}"
+    patterns: "*.whl"
+  register: local_whl_files
+
+- name: 필요한 WHL 패키지만 선별 복사
   copy:
-    src: "{{ local_packages_path }}/"
+    src: "{{ item.path }}"
     dest: "{{ remote_temp_dir }}/packages/"
+  loop: "{{ local_whl_files.files }}"
+  when: >
+    (item.path | basename | regex_replace('[-_].*', '') | lower) in 
+    (package_names | map('lower') | list) or
+    (item.path | basename | lower is search('pip|setuptools|wheel'))
 
 - name: venv 가상환경 생성
   command: "{{ python_bin }} -m venv {{ venv_path }}"
