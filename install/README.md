@@ -57,8 +57,9 @@ ansible-playbook -i hosts playbook.yml -u root -k
 ### 3.2 venv 가상환경 및 모듈 설정
 ```bash
 cd install
-ansible-playbook -i hosts venv_playbook.yml -u root -k
+ansible-playbook -i hosts venv_playbook.yml -u <생성할_계정명> -k
 ```
+> **참고**: `<생성할_계정명>`으로 가상환경 및 모듈이 설치되며, 해당 계정이 `project_root` 경로에 대한 쓰기 권한을 가져야 합니다. 필요한 경우 `--ask-become-pass (-K)` 옵션으로 `sudo` 권한을 사용하여 상위 디렉토리를 생성할 수 있습니다.
 
 ## 4. 상세 내용
 - **venv 경로**: `/home/rudy/app/listener/.venv` (설정에서 변경 가능)
