@@ -67,7 +67,7 @@
         remote_src: no
       when: openssl_bin_stat.stat.exists
 
-    - name: OpenSSL 빌드 및 설치 (바이너리가 없는 경우)
+    - name: OpenSSL 빌드 및 설치 (바이너리가 없는 경우, CentOS 7만 해당)
       block:
         - name: OpenSSL 압축 해제
           unarchive:
@@ -83,7 +83,7 @@
             make install
           args:
             creates: "{{ openssl_install_dir }}/bin/openssl"
-      when: not openssl_bin_stat.stat.exists
+      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7' and not openssl_bin_stat.stat.exists
 
 - name: Python 3.12.13 바이너리 배포 또는 빌드
   block:

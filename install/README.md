@@ -65,3 +65,4 @@ ansible-playbook -i hosts venv_playbook.yml -u <생성할_계정명> -k
 - **venv 경로**: `/home/rudy/app/listener/.venv` (설정에서 변경 가능)
 - **오프라인 설치**: `pip install --no-index --find-links`를 통해 로컬 패키지만으로 설치를 수행합니다.
 - **바이너리 배포**: Python 컴파일 완료 후 결과물을 압축하여 `files/binaries/`에 두면 다른 서버 배포 시 컴파일 시간을 단축할 수 있습니다.
+- **OpenSSL 1.1.1**: `/usr/local/openssl111` 경로에 설치되며, **CentOS 7 환경에서만** 빌드 및 설치됩니다. CentOS 8 이상 환경에서는 시스템에 설치된 OpenSSL을 사용합니다.
